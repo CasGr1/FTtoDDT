@@ -63,6 +63,27 @@ class FT:
                 result += new
             return result
 
+    def path_set(self, ft):
+        if ft.type == FtElementType.BE:
+            return [[ft.name]]
+
+        if ft.type == FtElementType.OR:
+            child_cut_sets = [self.path_set(child) for child in ft.children]
+            result = []
+
+            for combination in product(*child_cut_sets):
+                merged = []
+                for cut in combination:
+                    merged.extend(cut)
+                result.append(sorted(set(merged)))
+            return result
+
+        if ft.type == FtElementType.AND:
+            result = []
+            for child in ft.children:
+                new = self.path_set(child)
+                result += new
+            return result
     def unreliability(self, ft=None, add_unreliability=False):
         if ft is None:
             ft = self
@@ -117,11 +138,12 @@ if __name__ == "__main__":
     gate3 = FT("G2", FtElementType.AND, [be4, be5])
     gate2 = FT("G3", FtElementType.OR, [be3, gate3])
     top = FT("TOP", FtElementType.OR, [gate1, gate2])
-    current = top.find_vertex_by_name(top, "G3")
-    print(current.name)
+    # current = top.find_vertex_by_name(top, "G3")
+    # print(current.name)
     # print(top.variables(top))
     # print(top.probabilities(top))
-    # print(top.cut_set(top))
+    print(top.cut_set(top))
+    print(top.path_set(top))
     # print(top.unreliability(top))
 
 

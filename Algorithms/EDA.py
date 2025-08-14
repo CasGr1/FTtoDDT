@@ -1,6 +1,15 @@
 from FaultTree.FT import *
 
 def EDA(ft, B, P):
+    """
+    This is an exact algorithm for transforming fault trees into diagnostic decision trees.
+    It performs the transformation by calculating all possible decision trees and
+    picking the one with the lowest expected height
+    :param ft: Fault Tree that will be converted
+    :param B: set of variables in ft
+    :param P: dict of probabilities in ft, where key is the basic event and the value is the probability of failure
+    :return: an optimal diagnostic decision tree corresponding to ft
+    """
     if ft_false(ft):
         return '0', 0
     if ft_true(ft):
@@ -17,7 +26,6 @@ def EDA(ft, B, P):
         D0, h0 = EDA(f0, B_new, P)
         D1, h1 = EDA(f1, B_new, P)
 
-        # Add line for expected height
         h = 1 + (1-P[b])*h0 + P[b]*h1
 
         if h < opt_height:
@@ -27,6 +35,13 @@ def EDA(ft, B, P):
     return opt_tree, opt_height
 
 def restrict(ft, b, val):
+    """
+    Function that evaluates a variable in a fault tree
+    :param ft: fault tree that needs to be restricted
+    :param b:  variable that needs to be evaluated
+    :param val: what b is evaluated to, 0 meaning non-failure and 1 meaning failure
+    :return: fault tree where b is evaluated corresponding to val
+    """
     if ft.type == FtElementType.BE:
         if ft.name == b:
             return FT(ft.name, FtElementType.BE, prob = val)
@@ -50,6 +65,13 @@ def restrict(ft, b, val):
     return FT(ft.name, ft.type, new_children)
 
 def ft_false(ft):
+    """
+    function that checks if all elements evaluate to non-failure
+    :param ft: fault tree
+    :return:
+    True if fault tree evaluates to 0
+    False if fault tree does not evaluate to 0
+    """
     if ft.type == FtElementType.BE:
         return ft.prob == 0
     if ft.type == FtElementType.AND:
@@ -58,6 +80,13 @@ def ft_false(ft):
         return all(ft_false(child) for child in ft.children)
 
 def ft_true(ft):
+    """
+    function that checks if all elements evaluate to failure
+    :param ft: fault tree
+    :return:
+    True if fault tree evaluates to 1
+    False if fault tree does not evaluate to 1
+    """
     if ft.type == FtElementType.BE:
         return ft.prob == 1
     if ft.type == FtElementType.AND:
