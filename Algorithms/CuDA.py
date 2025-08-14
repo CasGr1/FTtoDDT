@@ -1,13 +1,32 @@
 from FaultTree.FT import *
 
 def CuDA(ft, S):
-    if S is empty:
+    if not S:
         return '0'
-    elif S is :
+    if [] in S:
         return '1'
     else:
         current_cs = find_likely_cut_set(ft, S)
-        
+        var = find_min_var(ft, current_cs)
+        return (var, CuDA(ft, remove_cs(S, var)), CuDA(ft, remove_var(S, var)))
+
+def remove_var(cutsets, event_to_remove):
+    updated_cutsets = [
+        [e for e in cutset if e != event_to_remove]
+        for cutset in cutsets
+    ]
+    return updated_cutsets
+
+def remove_cs(cutsets, event):
+    updated_cutsets = [cutset for cutset in cutsets if event not in cutset]
+    return updated_cutsets
+def find_min_var(ft, current_cs):
+    prob = float('inf')
+    for var in current_cs:
+        current = ft.find_vertex_by_name(ft, var)
+        if current.prob < prob:
+            prob = current.prob
+    return var
 
 def find_likely_cut_set(ft, S):
     maxP = 0
@@ -34,5 +53,4 @@ if __name__ == "__main__":
     top = FT("TOP", FtElementType.OR, [gate1, gate2])
 
     S = top.cut_set(top)
-    print(S)
-    print(find_likely_cut_set(top, S))
+    print(CuDA(top, S))
