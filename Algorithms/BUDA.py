@@ -1,6 +1,12 @@
 from FaultTree.FT import *
 
+
 def BUDA(ft):
+    """
+    This is an algorithm for transforming fault trees to diagnostic decision trees using a bottom-up approach
+    :param ft: the fault tree that needs to be performed
+    :return: diagnostic decision tree
+    """
     if ft.type == FtElementType.BE:
         return ft.name, '0', '1'
     if ft.type == FtElementType.AND:
@@ -10,7 +16,7 @@ def BUDA(ft):
             if result is None:
                 result = BUDA(child)
             else:
-                result = replace_zeros(result, '1', BUDA(child))
+                result = replace(result, '1', BUDA(child))
         return result
     if ft.type == FtElementType.OR:
         ordered_children = sorted(ft.children, key=lambda child: child.prob)
@@ -19,18 +25,34 @@ def BUDA(ft):
             if result is None:
                 result = BUDA(child)
             else:
-                result = replace_zeros(result, '0', BUDA(child))
+                result = replace(result, '0', BUDA(child))
         return result
 
-def replace_zeros(struct, original, replacement):
+
+def replace(struct, original, replacement):
+    """
+    Replaces all items that are equal to original with replacement
+    :param struct: the tuple that is used
+    :param original: the item that needs to be replaced
+    :param replacement: what original is replaced with
+    :return: struct with original replaced by replacement
+    """
     if isinstance(struct, tuple):
-        return tuple(replace_zeros(item, original, replacement) for item in struct)
+        return tuple(replace(item, original, replacement) for item in struct)
     elif struct == original:
         return replacement
     else:
         return struct
 
+
 def expected_height(ddt, P, depth=1):
+    """
+    Function that calculates the expected height of a diagnostic decision tree
+    :param ddt: the decision tree that is used
+    :param P: the probabilities of basic events in the decision tree
+    :param depth: used for recursive step
+    :return: the expected height of ddt
+    """
     node, low, high = ddt
     p_high = P[node]
     p_low = 1 - p_high
@@ -43,6 +65,7 @@ def expected_height(ddt, P, depth=1):
     else:
         high_exp = expected_height(high, P, depth + 1)
     return p_low * low_exp + p_high * high_exp
+
 
 if __name__ == "__main__":
     be1 = FT("BE1", FtElementType.BE, prob=0.1)

@@ -1,13 +1,13 @@
 from FaultTree.FT import *
 
-def EDA(ft, B, P):
+def EDA(ft, variables, probabilities):
     """
     This is an exact algorithm for transforming fault trees into diagnostic decision trees.
     It performs the transformation by calculating all possible decision trees and
     picking the one with the lowest expected height
     :param ft: Fault Tree that will be converted
-    :param B: set of variables in ft
-    :param P: dict of probabilities in ft, where key is the basic event and the value is the probability of failure
+    :param variables: set of variables in ft
+    :param probabilites: dict of probabilities in ft, where key is the basic event and the value is the probability of failure
     :return: an optimal diagnostic decision tree corresponding to ft
     """
     if ft_false(ft):
@@ -15,40 +15,39 @@ def EDA(ft, B, P):
     if ft_true(ft):
         return '1', 0
 
-    opt_height = float('inf')
-    opt_tree = None
+    optimal_height = float('inf')
+    optimal_tree = None
 
-    for b in B:
-        B_new = B - {b}
-        f0 = restrict(ft, b, 0)
-        f1 = restrict(ft, b, 1)
+    for var in variables:
+        remaining_var = variables - {var}
+        left_ft = restrict(ft, var, 0)
+        right_ft = restrict(ft, var, 1)
 
-        D0, h0 = EDA(f0, B_new, P)
-        D1, h1 = EDA(f1, B_new, P)
+        left_tree, left_height = EDA(left_ft, remaining_var, probabilities)
+        right_tree, right_height = EDA(right_ft, remaining_var, probabilities)
 
-        h = 1 + (1-P[b])*h0 + P[b]*h1
+        height = 1 + (1-probabilities[var])*left_height + probabilities[var]*right_height
 
-        if h < opt_height:
-            opt_height = h
-            opt_tree = (b, D0, D1)
+        if height < optimal_height:
+            optimal_height = height
+            optimal_tree = (var, left_tree, right_tree)
+    return optimal_tree, optimal_height
 
-    return opt_tree, opt_height
-
-def restrict(ft, b, val):
+def restrict(ft, var, value):
     """
     Function that evaluates a variable in a fault tree
     :param ft: fault tree that needs to be restricted
-    :param b:  variable that needs to be evaluated
-    :param val: what b is evaluated to, 0 meaning non-failure and 1 meaning failure
-    :return: fault tree where b is evaluated corresponding to val
+    :param var:  variable that needs to be evaluated
+    :param value: what var is evaluated to, 0 meaning non-failure and 1 meaning failure
+    :return: fault tree where b is evaluated corresponding to value
     """
     if ft.type == FtElementType.BE:
-        if ft.name == b:
-            return FT(ft.name, FtElementType.BE, prob = val)
+        if ft.name == var:
+            return FT(ft.name, FtElementType.BE, prob = value)
         else:
             return ft
 
-    new_children = [restrict(child, b, val) for child in ft.children]
+    new_children = [restrict(child, var, value) for child in ft.children]
 
     if all(child.type == FtElementType.BE and child.probabilities in [0, 1] for child in new_children):
         if ft.type == FtElementType.AND:
