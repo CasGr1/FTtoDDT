@@ -1,5 +1,5 @@
 from FaultTree.FT import *
-from Algorithms.CuDA import remove_cs, remove_var
+from Algorithms.Height.CuDA import remove_cs, remove_var
 
 def PaDAprob(ft, S):
     """
@@ -11,13 +11,13 @@ def PaDAprob(ft, S):
     """
 
     if not S:
-        return '0'
-    if [] in S:
         return '1'
+    if [] in S:
+        return '0'
     else:
-        current_cs = find_min_path_set(ft, S)
-        var = find_max_var(ft, current_cs)
-        return var, PaDAprob(ft, remove_cs(S, var)), PaDAprob(ft, remove_var(S, var))
+        current_ps = find_min_path_set(ft, S)
+        var = find_max_var(ft, current_ps)
+        return var, PaDAprob(ft, remove_var(S, var)), PaDAprob(ft, remove_cs(S, var))
 
 
 def PaDAsize(ft, S):
@@ -30,27 +30,29 @@ def PaDAsize(ft, S):
     """
 
     if not S:
-        return '0'
-    if [] in S:
         return '1'
+    if [] in S:
+        return '0'
     else:
-        current_cs = sorted(S, key=len)[0]
-        var = find_max_var(ft, current_cs)
-        return var, PaDAprob(ft, remove_cs(S, var)), PaDAprob(ft, remove_var(S, var))
+        current_ps = sorted(S, key=len)[0]
+        var = find_max_var(ft, current_ps)
+        return var, PaDAprob(ft, remove_var(S, var)), PaDAprob(ft, remove_cs(S, var))
 
-def find_max_var(ft, current_cs):
+def find_max_var(ft, current_ps):
     """
-    Function to find the event with the lowest probability within a cut set
+    Function to find the event with the highest probability within a cut set
     :param ft: fault tree that is being used
     :param current_cs: the cut set that is currently being used
     :return: variable with the highest failure probability
     """
     prob = 0
-    for var in current_cs:
-        current = ft.find_vertex_by_name(ft, var)
+    max_var = None
+    for var in current_ps:
+        current = ft.find_vertex_by_name(var)
         if current.prob > prob:
             prob = current.prob
-    return var
+            max_var = current.name
+    return max_var
 
 
 def find_min_path_set(ft, S):
@@ -58,19 +60,19 @@ def find_min_path_set(ft, S):
     Function that calculates probability of all path sets and returns the one with the lowest probability
     :param ft: fault tree
     :param S: set of cut sets
-    :return: cut set in S with the lowest probability
+    :return: path set in S with the lowest probability
     """
     maxP = 0
-    cutset = None
-    for cs in S:
+    pathset = None
+    for ps in S:
         P = 1
-        for vertex in cs:
-            current = ft.find_vertex_by_name(ft, vertex)
+        for vertex in ps:
+            current = ft.find_vertex_by_name(vertex)
             P *= (1-current.prob)
         if P > maxP:
             maxP = P
-            cutset = cs
-    return cutset
+            pathset = ps
+    return pathset
 
 
 if __name__ == "__main__":
@@ -84,8 +86,10 @@ if __name__ == "__main__":
     gate2 = FT("G3", FtElementType.OR, [be3, gate3])
     top = FT("TOP", FtElementType.OR, [gate1, gate2])
 
-    S = top.path_set(top)
+    S = top.path_set()
     probDDT = PaDAprob(top, S)
     sizeDDT = PaDAsize(top, S)
     print("prob:", probDDT)
     print("size:", sizeDDT)
+    from Algorithms.Height.BUDA import expected_height
+    print(expected_height(probDDT, top.probabilities()))
