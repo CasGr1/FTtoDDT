@@ -1,38 +1,53 @@
 from FaultTree.FTParser import *
-from Algorithms.EDA import *
-from Algorithms.BUDA import *
-from Algorithms.CuDA import *
-from Algorithms.PaDA import *
-
+from Algorithms.Height.EDA import *
+from Algorithms.Height.BUDA import *
+from Algorithms.Height.CuDA import *
+from Algorithms.Height.PaDA import *
+from Algorithms.Height.DIF import *
 
 if __name__ == "__main__":
-    FTfile = "FaultTree/FTexamples/csd.dft"
+    FTfile = "FaultTree/FTexamples/loss_container_port(FT9).dft"
     FaultTree = FTParse(FTfile)
     # FaultTree.print()
 
     FaultTree.unreliability(add_unreliability=True)
-    B = FaultTree.variables(FaultTree)
-    P = FaultTree.probabilities(FaultTree)
-    S = FaultTree.cut_set(FaultTree)
+    B = FaultTree.variables()
+    P = FaultTree.probabilities()
+    S = FaultTree.cut_set()
+    Pathsets = FaultTree.path_set()
     # print(B)
     # print(P)
 
     # EDA
-    EDAddt, height = EDA(FaultTree, B, P)
-    print("EDA DDT:", EDAddt)
-    print("EDA Exp Height:", height)
+    # EDAddt, height = EDA(FaultTree, B, P)
+    # print("EDA DDT:", EDAddt)
+    # print("EDA Exp Height:", height)
 
-    #BUDA
+    # BUDA
     BUDADDT = BUDA(FaultTree)
     print("BUDA DDT:", BUDADDT)
     print("BUDA Exp Height:", expected_height(BUDADDT, P))
 
-    #CUDA
-    CUDADDT = CuDA(FaultTree, S)
-    print("CUDA DDT:", CUDADDT)
-    print("CUDA Exp Height:", expected_height(CUDADDT, P))
+    # DIDA
+    DIDADDT = DIDA(FaultTree, S)
+    print("DIF DDT:", DIDADDT)
+    print("DIF Exp Height:", expected_height(DIDADDT, P))
 
-    # CUDA
-    PADADDT = PaDA(FaultTree, S)
-    print("PADA DDT:", PADADDT)
-    print("PADA Exp Height:", expected_height(PADADDT, P))
+    # CuDA
+    CUDAprobDDT = CuDAprob(FaultTree, S)
+    print("CUDAprob DDT:", CUDAprobDDT)
+    print("CUDAprob Exp Height:", expected_height(CUDAprobDDT, P))
+
+    CUDAsizeDDT = CuDAsize(FaultTree, S)
+    print("CUDAsize DDT:", CUDAsizeDDT)
+    print("CUDAseize Exp Height:", expected_height(CUDAsizeDDT, P))
+
+    # PaDA
+    PADAprobDDT = PaDAprob(FaultTree, Pathsets)
+    print("PADAprob DDT:", PADAprobDDT)
+    print("PADAprob Exp Height:", expected_height(PADAprobDDT, P))
+
+    PADAsizeDDT = PaDAsize(FaultTree, Pathsets)
+    print("PADAsize DDT:", PADAsizeDDT)
+    print("PADAsize Exp Height:", expected_height(PADAsizeDDT, P))
+    

@@ -1,5 +1,6 @@
 from FaultTree.FT import *
 
+
 def EDA(ft, variables, probabilities):
     """
     This is an exact algorithm for transforming fault trees into diagnostic decision trees.
@@ -7,7 +8,7 @@ def EDA(ft, variables, probabilities):
     picking the one with the lowest expected height
     :param ft: Fault Tree that will be converted
     :param variables: set of variables in ft
-    :param probabilites: dict of probabilities in ft, where key is the basic event and the value is the probability of failure
+    :param probabilities: dict of probabilities in ft, where key is the basic event and the value is the probability of failure
     :return: an optimal diagnostic decision tree corresponding to ft
     """
     if ft_false(ft):
@@ -36,14 +37,14 @@ def EDA(ft, variables, probabilities):
 def restrict(ft, var, value):
     """
     Function that evaluates a variable in a fault tree
-    :param ft: fault tree that needs to be restricted
+    :param ft:  that needs to be restricted
     :param var:  variable that needs to be evaluated
     :param value: what var is evaluated to, 0 meaning non-failure and 1 meaning failure
     :return: fault tree where b is evaluated corresponding to value
     """
     if ft.type == FtElementType.BE:
         if ft.name == var:
-            return FT(ft.name, FtElementType.BE, prob = value)
+            return FT(ft.name, FtElementType.BE, prob=value)
         else:
             return ft
 
@@ -112,7 +113,7 @@ if __name__ == "__main__":
     print("DDT:", ddt)
     print("Exp height:", height)
 
-    from Algorithms.BUDA import expected_height
+    from Algorithms.Height.BUDA import expected_height
     print(expected_height(ddt, P))
 
 

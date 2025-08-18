@@ -1,38 +1,39 @@
 from FaultTree.FT import *
 
 
-def CuDAprob(ft, S):
+def CuDAprob(ft, cutsets):
     """
     This is an algorithm that transforms fault trees into diagnostic decision trees using cut sets
     :param ft: fault tree that will be converted
-    :param S: a set of all minimal cut sets
+    :param cutsets: a set of all minimal cut sets
     :return: a diagnostic decision tree corresponding to ft
     """
-    if not S:
+    if not cutsets:
         return '0'
-    if [] in S:
+    if [] in cutsets:
         return '1'
     else:
-        current_cs = find_likely_cut_set(ft, S)
+        current_cs = find_likely_cut_set(ft, cutsets)
         var = find_min_var(ft, current_cs)
-        return var, CuDAprob(ft, remove_cs(S, var)), CuDAprob(ft, remove_var(S, var))
+        return var, CuDAprob(ft, remove_cs(cutsets, var)), CuDAprob(ft, remove_var(cutsets, var))
 
 
-def CuDAsize(ft, S):
+def CuDAsize(ft, cutsets):
     """
     This is an algorithm that transforms fault trees into diagnostic decision trees using cut sets
     :param ft: fault tree that will be converted
-    :param S: a set of all minimal cut sets
+    :param cutsets: a set of all minimal cut sets
     :return: a diagnostic decision tree corresponding to ft
     """
-    if not S:
+    if not cutsets:
         return '0'
-    if [] in S:
+    if [] in cutsets:
         return '1'
     else:
-        current_cs = sorted(S, key=len)[0]
+        current_cs = sorted(cutsets, key=len)[0]
         var = find_min_var(ft, current_cs)
-        return var, CuDAsize(ft, remove_cs(S, var)), CuDAsize(ft, remove_var(S, var))
+        return var, CuDAsize(ft, remove_cs(cutsets, var)), CuDAsize(ft, remove_var(cutsets, var))
+
 
 def remove_var(cutsets, remove):
     """
@@ -67,26 +68,28 @@ def find_min_var(ft, current_cs):
     :return: variable with the highest failure probability
     """
     prob = float('inf')
+    min_var = None
     for var in current_cs:
-        current = ft.find_vertex_by_name(ft, var)
+        current = ft.find_vertex_by_name(var)
         if current.prob < prob:
             prob = current.prob
-    return var
+            min_var = current.name
+    return min_var
 
 
-def find_likely_cut_set(ft, S):
+def find_likely_cut_set(ft, cutsets):
     """
     Function that calculates probability of all cut sets and returns the one with the highest probability
     :param ft: fault tree
-    :param S: set of cut sets
-    :return: cut set in S with highest probability
+    :param cutsets: set of cut sets
+    :return: cut set in S with the highest probability
     """
     maxP = 0
     cutset = None
-    for cs in S:
+    for cs in cutsets:
         P = 1
         for vertex in cs:
-            current = ft.find_vertex_by_name(ft, vertex)
+            current = ft.find_vertex_by_name(vertex)
             P *= current.prob
         if P > maxP:
             maxP = P

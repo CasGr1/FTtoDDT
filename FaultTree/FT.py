@@ -6,15 +6,19 @@ class FtElementType(Enum):
     OR = 3
 
 class FT:
-    def __init__(self, name, FtElement, children = None, prob=0):
+    def __init__(self, name, ftelement, children=None, prob=0, cost=0):
         if children == None:
             children = []
         self.name = name
-        self.type = FtElement
+        self.type = ftelement
         self.children = children
         self.prob = prob
+        self.cost = cost
 
-    def variables(self, ft):
+    def variables(self, ft=None):
+        if ft is None:
+            ft = self
+
         if ft.type == FtElementType.BE:
             return {ft.name}
 
@@ -23,7 +27,10 @@ class FT:
             variables.update(self.variables(child))
         return variables
 
-    def vertices(self, ft):
+    def vertices(self, ft=None):
+        if ft is None:
+            ft = self
+
         if ft.type == FtElementType.BE:
             return {ft.name}
 
@@ -32,7 +39,10 @@ class FT:
             variables.update(self.vertices(child))
         return variables
 
-    def probabilities(self, ft):
+    def probabilities(self, ft=None):
+        if ft is None:
+            ft = self
+
         if ft.type == FtElementType.BE:
             return {ft.name: ft.prob}
 
@@ -41,7 +51,22 @@ class FT:
             events.update(self.probabilities(child))
         return events
 
-    def cut_set(self, ft):
+    def cost_dict(self, ft=None):
+        if ft is None:
+            ft = self
+
+        if ft.type == FtElementType.BE:
+            return {ft.name: ft.cost}
+
+        events = {}
+        for child in ft.children:
+            events.update(self.cost_dict(child))
+        return events
+
+    def cut_set(self, ft=None):
+        if ft is None:
+            ft = self
+
         if ft.type == FtElementType.BE:
             return [[ft.name]]
 
@@ -63,7 +88,10 @@ class FT:
                 result += new
             return result
 
-    def path_set(self, ft):
+    def path_set(self, ft=None):
+        if ft is None:
+            ft = self
+
         if ft.type == FtElementType.BE:
             return [[ft.name]]
 
@@ -84,6 +112,7 @@ class FT:
                 new = self.path_set(child)
                 result += new
             return result
+
     def unreliability(self, ft=None, add_unreliability=False):
         if ft is None:
             ft = self
@@ -107,16 +136,18 @@ class FT:
                 ft.prob = result
             return 1 - result
 
-    def find_vertex_by_name(self, ft, name):
+    def find_vertex_by_name(self, name, ft=None):
+        if ft is None:
+            ft = self
         if ft.name == name:
             return ft
         for child in ft.children:
-            result = self.find_vertex_by_name(child, name)
+            result = self.find_vertex_by_name(name, child)
             if result is not None:
                 return result
         return None
     def print(self, indent=0):
-        print(" "*indent + f"{self.name} (", end="")
+        print(" "*indent + f"{self.name} prob: {self.prob} (", end="")
         if self.type == FtElementType.BE:
             print("BE)")
         elif self.type == FtElementType.AND:
@@ -142,8 +173,9 @@ if __name__ == "__main__":
     # print(current.name)
     # print(top.variables(top))
     # print(top.probabilities(top))
-    print(top.cut_set(top))
-    print(top.path_set(top))
+    # print(top.cut_set(top))
+    # print(top.path_set(top))
     # print(top.unreliability(top))
+    print(top.cost_dict(top))
 
 
