@@ -1,4 +1,6 @@
 from FaultTree.FT import *
+
+
 def FTParse(filename):
     fts = {}
     with open(filename, "r") as file:
@@ -22,23 +24,20 @@ def FTParse(filename):
                 fts[name] = ft_node
             elif "prob" in linelist[1]:
                 prob = float(linelist[1].split('=')[1])
-                ft_node = FT(name, FtElementType.BE, prob=prob)
+                if len(linelist) > 2:
+                    cost = float(linelist[2].split('=')[1])
+                else:
+                    cost = None
+                ft_node = FT(name, FtElementType.BE, prob=prob, cost=cost)
                 fts[name] = ft_node
     for node in fts.values():
         node.children = [fts[child_name] for child_name in node.children if child_name in fts]
     return fts[top]
 
 
-
-
 if __name__ == "__main__":
-    FTfile = "FTexamples/loss_container_port(FT9).dft"
-    # with open(FTfile) as f:
-    #     print(f.read())
+    # FTfile = "FTexamples/loss_container_port(FT9).dft"
+    FTfile = "FTexamples/Cost/ptCOST.dft"
     FaultTree = FTParse(FTfile)
     FaultTree.print()
 
-
-    # print(cut_set(FaultTree))
-    # print(unreliability(FaultTree))
-    # print_cut_sets(mcs)

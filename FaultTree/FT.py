@@ -6,7 +6,7 @@ class FtElementType(Enum):
     OR = 3
 
 class FT:
-    def __init__(self, name, ftelement, children=None, prob=0, cost=0):
+    def __init__(self, name, ftelement, children=None, prob=None, cost=None):
         if children == None:
             children = []
         self.name = name
@@ -146,8 +146,14 @@ class FT:
             if result is not None:
                 return result
         return None
+
     def print(self, indent=0):
-        print(" "*indent + f"{self.name} prob: {self.prob} (", end="")
+        if self.cost is not None:
+            print(" "*indent + f"{self.name} prob: {self.prob} cost: {self.cost} (", end="")
+        elif self.prob is not None:
+            print(" " * indent + f"{self.name} prob: {self.prob} (", end="")
+        else:
+            print(" " * indent + f"{self.name} (", end="")
         if self.type == FtElementType.BE:
             print("BE)")
         elif self.type == FtElementType.AND:
