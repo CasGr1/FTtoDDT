@@ -24,26 +24,15 @@ class DDT:
         left = (1 - ddt.prob) * self.expected_height(ddt.children[0], depth + 1)
         right = ddt.prob * self.expected_height(ddt.children[1], depth + 1)
         return left + right
-    # def expected_cost(self, ddt=None, cost=0):
-    #     if ddt is None:
-    #         ddt = self
-    #     if ddt.type is not DdtElementType.DEC:
-    #         return cost
-    #     cost += ddt.cost
-    #     left = (1-ddt.prob) * self.expected_cost(ddt.children[0], cost)
-    #     right = ddt.prob * self.expected_cost(ddt.children[1], cost)
-    #     return left + right
 
     def expected_cost(self, ddt=None):
         if ddt is None:
             ddt = self
         if ddt.type != DdtElementType.DEC:
-            return ddt.cost  # leaf cost
-        expcost = ddt.cost + (
-                (1 - ddt.prob) * self.expected_cost(ddt.children[0]) +
-                ddt.prob * self.expected_cost(ddt.children[1])
-        )
-        return expcost
+            return 0 # leaf cost
+        left = (1 - ddt.prob) * self.expected_cost(ddt.children[0])
+        right = ddt.prob * self.expected_cost(ddt.children[1])
+        return ddt.cost + left + right
 
     def print(self):
         print(self.to_string())
@@ -60,14 +49,20 @@ class DDT:
             result += child.to_string(level + 1)
         return result
 
+    # def expected_height(self, node):
+    #     if not node.type == DdtElementType.DEC:
+    #         return 0
+    #
+    #     left = self.expected_height(node.children[0])
+    #     right = self.expected_height(node.children[1])
+    #     return 1 + node.prob * right + (1 - node.prob) * left
 
 def ddt_from_tuple(ddt, prob=None, cost=None):
     if isinstance(ddt, tuple):
         if cost is not None:
             p= prob[ddt[0]]
             c = cost[ddt[0]]
-            return DDT(ddt[0], DdtElementType.DEC, children=[ddt_from_tuple(ddt[1], prob), ddt_from_tuple(ddt[2], prob)],
-                prob=p, cost=c)
+            return DDT(ddt[0], DdtElementType.DEC, children=[ddt_from_tuple(ddt[1], prob, cost), ddt_from_tuple(ddt[2], prob, cost)], prob=p, cost=c)
         elif prob is not None:
             p = prob[ddt[0]]
             return DDT(ddt[0], DdtElementType.DEC, children=[ddt_from_tuple(ddt[1], prob), ddt_from_tuple(ddt[2], prob)], prob=p)
