@@ -1,5 +1,5 @@
 from FaultTree.FT import *
-
+from DDT.DDT import *
 
 def BUDAcost(ft):
     """
@@ -8,25 +8,30 @@ def BUDAcost(ft):
     :return: diagnostic decision tree
     """
     if ft.type == FtElementType.BE:
-        return ft.name, '0', '1'
+        return (ft.name, '0', '1'), ft.prob, ft.cost
+
+    subtrees  = [BUDAcost(ch) for ch in ft.children]
     if ft.type == FtElementType.AND:
-        ordered_children = sorted(ft.children, key=lambda child: child.prob * child.cost, reverse=True)
+        ordered_children = sorted(subtrees, key=lambda x: x[2]/(1-x[1]), reverse=True)
+        ft.cost = expected_cost_subft(ordered_children, 'AND')
         result = None
-        for child in ordered_children:
+        for child, _, _ in ordered_children:
             if result is None:
-                result = BUDAcost(child)
+                result = child
             else:
-                result = replace(result, '1', BUDAcost(child))
-        return result
+                result = replace(result, '1', child)
+        return result, ft.prob, ft.cost
+
     if ft.type == FtElementType.OR:
-        ordered_children = sorted(ft.children, key=lambda child: child.prob * child.cost)
+        ordered_children = sorted(subtrees, key=lambda x: x[2]/(1-x[1]))
+        ft.cost = expected_cost_subft(ordered_children, 'OR')
         result = None
-        for child in ordered_children:
+        for child, _, _ in ordered_children:
             if result is None:
-                result = BUDAcost(child)
+                result = child
             else:
-                result = replace(result, '0', BUDAcost(child))
-        return result
+                result = replace(result, '0', child)
+        return result, ft.prob, ft.cost
 
 
 def replace(struct, original, replacement):
@@ -45,28 +50,19 @@ def replace(struct, original, replacement):
         return struct
 
 
-def expected_cost(ddt, P, cost, acc_cost=0):
-    """
-    Function that calculates the expected height of a diagnostic decision tree
-    :param ddt: the decision tree that is used
-    :param P: the probabilities of basic events in the decision tree
-    :param cost: used for recursive step
-    :return: the expected height of ddt
-    """
-    node, low, high = ddt
-    p_high = P[node]
-    p_low = 1 - p_high
-    acc_cost += cost[node]
-
-    if low in ('0', '1'):
-        low_exp = acc_cost
-    else:
-        low_exp = expected_cost(low, P, cost, acc_cost)
-    if high in ('0', '1'):
-        high_exp = acc_cost
-    else:
-        high_exp = expected_cost(high, P, cost, acc_cost)
-    return p_low * low_exp + p_high * high_exp
+def expected_cost_subft(ordered_children, gate_type):
+    expected = 0.0
+    if gate_type == 'OR':
+        prob_prefix = 1.0
+        for _, cost, prob in ordered_children:
+            expected += prob_prefix * cost
+            prob_prefix *= (1 - prob)
+    elif gate_type == 'AND':
+        prob_prefix = 1.0
+        for _, cost, prob in ordered_children:
+            expected += prob_prefix * cost
+            prob_prefix *= prob
+    return expected
 
 
 if __name__ == "__main__":
@@ -75,11 +71,12 @@ if __name__ == "__main__":
     be3 = FT("BE3", FtElementType.BE, prob=0.2, cost=1)
     be4 = FT("BE4", FtElementType.BE, prob=0.15, cost=1)
     be5 = FT("BE5", FtElementType.BE, prob=0.05, cost=1)
-    gate1 = FT("G1", FtElementType.AND, [be1, be2])
-    gate3 = FT("G2", FtElementType.AND, [be4, be5])
-    gate2 = FT("G3", FtElementType.OR, [be3, gate3])
-    top = FT("TOP", FtElementType.OR, [gate1, gate2])
+    gate1 = FT("G1", FtElementType.AND, [be1, be2], cost=0)
+    gate3 = FT("G2", FtElementType.AND, [be4, be5], cost=0)
+    gate2 = FT("G3", FtElementType.OR, [be3, gate3], cost=0)
+    top = FT("TOP", FtElementType.OR, [gate1, gate2], cost=0)
     top.unreliability(add_unreliability=True)
     DDT = BUDAcost(top)
-    print(DDT)
-    print(expected_cost(DDT, top.probabilities(top), top.cost_dict(top)))
+    convertedDDT = ddt_from_tuple(DDT[0], top.probabilities(), top.cost_dict())
+    convertedDDT.print()
+    print(convertedDDT.expected_cost())
