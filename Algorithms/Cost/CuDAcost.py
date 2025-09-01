@@ -1,7 +1,7 @@
 from FaultTree.FT import *
 
 
-def CuDAprob(ft, cutsets):
+def CuDAcost(ft, cutsets):
     """
     This is an algorithm that transforms fault trees into diagnostic decision trees using cut sets
     :param ft: fault tree that will be converted
@@ -15,24 +15,24 @@ def CuDAprob(ft, cutsets):
     else:
         current_cs = find_likely_cut_set(ft, cutsets)
         var = find_min_var(ft, current_cs)
-        return var, CuDAprob(ft, remove_cs(cutsets, var)), CuDAprob(ft, remove_var(cutsets, var))
+        return var, CuDAcost(ft, remove_cs(cutsets, var)), CuDAcost(ft, remove_var(cutsets, var))
 
 
-def CuDAsize(ft, cutsets):
-    """
-    This is an algorithm that transforms fault trees into diagnostic decision trees using cut sets
-    :param ft: fault tree that will be converted
-    :param cutsets: a set of all minimal cut sets
-    :return: a diagnostic decision tree corresponding to ft
-    """
-    if not cutsets:
-        return '0'
-    if [] in cutsets:
-        return '1'
-    else:
-        current_cs = sorted(cutsets, key=len)[0]
-        var = find_min_var(ft, current_cs)
-        return var, CuDAsize(ft, remove_cs(cutsets, var)), CuDAsize(ft, remove_var(cutsets, var))
+# def CuDAsize(ft, cutsets):
+#     """
+#     This is an algorithm that transforms fault trees into diagnostic decision trees using cut sets
+#     :param ft: fault tree that will be converted
+#     :param cutsets: a set of all minimal cut sets
+#     :return: a diagnostic decision tree corresponding to ft
+#     """
+#     if not cutsets:
+#         return '0'
+#     if [] in cutsets:
+#         return '1'
+#     else:
+#         current_cs = sorted(cutsets, key=len)[0]
+#         var = find_min_var(ft, current_cs)
+#         return var, CuDAsize(ft, remove_cs(cutsets, var)), CuDAsize(ft, remove_var(cutsets, var))
 
 
 def remove_var(cutsets, remove):
@@ -71,8 +71,8 @@ def find_min_var(ft, current_cs):
     min_var = None
     for var in current_cs:
         current = ft.find_vertex_by_name(var)
-        if current.prob < prob:
-            prob = current.prob
+        if current.cost/(1-current.prob) < prob:
+            prob = current.cost/(1-current.prob)
             min_var = current.name
     return min_var
 
@@ -84,39 +84,22 @@ def find_likely_cut_set(ft, cutsets):
     :param cutsets: set of cut sets
     :return: cut set in S with the highest probability
     """
-    maxP = 0
+    max = float('inf')
+
     cutset = None
     for cs in cutsets:
         P = 1
+        C = 0
         for vertex in cs:
             current = ft.find_vertex_by_name(vertex)
-            P *= current.prob*current.cost
-        if P > maxP:
-            maxP = P
+            P *= current.prob
+            C += current.cost
+        comp = C/P
+        if comp < max:
+            max = comp
             cutset = cs
     return cutset
 
-
-def expected_height(ddt, P, depth=1):
-    """
-    Function that calculates the expected height of a diagnostic decision tree
-    :param ddt: the decision tree that is used
-    :param P: the probabilities of basic events in the decision tree
-    :param depth: used for recursive step
-    :return: the expected height of ddt
-    """
-    node, low, high = ddt
-    p_high = P[node]
-    p_low = 1 - p_high
-    if low in ('0', '1'):
-        low_exp = depth
-    else:
-        low_exp = expected_height(low, P, depth + 1)
-    if high in ('0', '1'):
-        high_exp = depth
-    else:
-        high_exp = expected_height(high, P, depth + 1)
-    return p_low * low_exp + p_high * high_exp
 
 
 def expected_cost(ddt, P, cost, acc_cost=0):

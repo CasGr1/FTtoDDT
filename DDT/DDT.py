@@ -34,6 +34,21 @@ class DDT:
         right = ddt.prob * self.expected_cost(ddt.children[1])
         return ddt.cost + left + right
 
+    def all_paths(self, path=None):
+        if path is None:
+            path = []
+
+        if self.type == DdtElementType.DEC:
+            paths = []
+            left_paths = self.children[0].all_paths(path + [(self.name, 0)])
+            right_paths = self.children[1].all_paths(path + [(self.name, 1)])
+            paths.extend(left_paths)
+            paths.extend(right_paths)
+            return paths
+        else:
+            # Leaf node: return path + result
+            return [path + [f"{self.type.name}"]]
+
     def print(self):
         print(self.to_string())
 
@@ -48,14 +63,6 @@ class DDT:
         for child in self.children:
             result += child.to_string(level + 1)
         return result
-
-    # def expected_height(self, node):
-    #     if not node.type == DdtElementType.DEC:
-    #         return 0
-    #
-    #     left = self.expected_height(node.children[0])
-    #     right = self.expected_height(node.children[1])
-    #     return 1 + node.prob * right + (1 - node.prob) * left
 
 def ddt_from_tuple(ddt, prob=None, cost=None):
     if isinstance(ddt, tuple):
@@ -91,7 +98,7 @@ if __name__ == "__main__":
     edaddt, expcost = EDA(gate1, gate1.variables(), gate1.probabilities())
     DDT = ddt_from_tuple(edaddt, gate1.probabilities(), gate1.cost_dict())
     # DDT.print()
-    print(expcost)
+    print(DDT.all_paths())
     print(DDT.expected_height())
     print(DDT.expected_cost())
 

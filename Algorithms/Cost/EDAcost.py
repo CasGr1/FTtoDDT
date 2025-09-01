@@ -1,4 +1,6 @@
 from FaultTree.FT import *
+from DDT.DDT import *
+
 
 def EDAcost(ft, variables, probabilities, cost):
     """
@@ -116,9 +118,9 @@ if __name__ == "__main__":
     print("DDT:", ddt)
     print("Exp cost:", expcost)
 
-    from Algorithms.Height.BUDA import expected_height
-    print(expected_height(ddt, P))
-    # print(expected_cost(ddt, P,cost))
+    convertedDDT = ddt_from_tuple(ddt, P, cost)
+    print(convertedDDT.expected_cost())
+
 
 
 
