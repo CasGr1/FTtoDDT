@@ -133,7 +133,7 @@ class FT:
             for child in ft.children:
                 result *= (1 - self.unreliability(child, add_unreliability))
             if add_unreliability:
-                ft.prob = result
+                ft.prob = 1-result
             return 1 - result
 
     def find_vertex_by_name(self, name, ft=None):
