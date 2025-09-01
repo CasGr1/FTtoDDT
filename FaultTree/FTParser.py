@@ -24,7 +24,7 @@ def FTParse(filename):
                 fts[name] = ft_node
             elif "prob" in linelist[1]:
                 prob = float(linelist[1].split('=')[1])
-                if len(linelist) > 2:
+                if len(linelist) > 2 and 'cost' in linelist[2]:
                     cost = float(linelist[2].split('=')[1])
                 else:
                     cost = None
