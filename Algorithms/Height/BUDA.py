@@ -10,7 +10,7 @@ def BUDA(ft):
     if ft.type == FtElementType.BE:
         return ft.name, '0', '1'
     if ft.type == FtElementType.AND:
-        ordered_children = sorted(ft.children, key=lambda child: child.prob, reverse=True)
+        ordered_children = sorted(ft.children, key=lambda child: child.prob)
         result = None
         for child in ordered_children:
             if result is None:
@@ -19,7 +19,7 @@ def BUDA(ft):
                 result = replace(result, '1', BUDA(child))
         return result
     if ft.type == FtElementType.OR:
-        ordered_children = sorted(ft.children, key=lambda child: child.prob)
+        ordered_children = sorted(ft.children, key=lambda child: child.prob, reverse=True)
         result = None
         for child in ordered_children:
             if result is None:

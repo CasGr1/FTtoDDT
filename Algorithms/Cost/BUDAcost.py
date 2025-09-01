@@ -12,7 +12,7 @@ def BUDAcost(ft):
 
     subtrees  = [BUDAcost(ch) for ch in ft.children]
     if ft.type == FtElementType.AND:
-        ordered_children = sorted(subtrees, key=lambda x: x[2]/(1-x[1]), reverse=True)
+        ordered_children = sorted(subtrees, key=lambda x: x[2]/(1-x[1]))
         ft.cost = expected_cost_subft(ordered_children, 'AND')
         result = None
         for child, _, _ in ordered_children:
@@ -23,7 +23,7 @@ def BUDAcost(ft):
         return result, ft.prob, ft.cost
 
     if ft.type == FtElementType.OR:
-        ordered_children = sorted(subtrees, key=lambda x: x[2]/(1-x[1]))
+        ordered_children = sorted(subtrees, key=lambda x: x[2]/(1-x[1]), reverse=True)
         ft.cost = expected_cost_subft(ordered_children, 'OR')
         result = None
         for child, _, _ in ordered_children:
