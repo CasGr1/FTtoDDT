@@ -2,6 +2,8 @@ from Algorithms.Cost.EDAcost import *
 from Algorithms.Cost.BUDAcost import *
 from Algorithms.Cost.CuDAcost import *
 from Algorithms.Cost.DIFcost import *
+from Algorithms.Cost.test import *
+from Algorithms.Cost.PaDAcost import *
 from Algorithms.Height.CuDA import *
 from FaultTree.FTParser import *
 from DDT.DDT import *
@@ -58,6 +60,7 @@ def plot_exp_cost(data_dicts, title="Comparison of Methods"):
 if __name__ == "__main__":
     CUDA_exp_cost_dict = {}
     CUDA_normal = {}
+    PADA_cost = {}
     BUDA_exp_cost_dict = {}
     DIF_exp_cost_dict = {}
     EDAdict = {}
@@ -78,6 +81,9 @@ if __name__ == "__main__":
         Cnormalconverted = ddt_from_tuple(Cnormal, prob, cst)
         CUDA_normal[file] = Cnormalconverted.expected_cost()
 
+        PaDAddt = PaDAcost(ft, ps)
+        paDAconvertedddt = ddt_from_tuple(PaDAddt, prob, cst)
+        PADA_cost[file] = paDAconvertedddt.expected_cost()
 
         CuDAddt = CuDAcost(ft, cs)
         CuDAconvertedddt = ddt_from_tuple(CuDAddt, prob, cst)
@@ -91,7 +97,8 @@ if __name__ == "__main__":
     print(f"BUDA: {BUDA_exp_cost_dict}")
     print(f"DIF: {DIF_exp_cost_dict}")
     plot_exp_cost({"CUDAcost": CUDA_exp_cost_dict,
-                   "CUDAprob": CUDA_normal,
+                   "CUDAtest": CUDA_normal,
+                   "PADAcost": PADA_cost,
                    "BUDA": BUDA_exp_cost_dict,
                    "DIF": DIF_exp_cost_dict,
                    "EDA": EDAdict})
