@@ -1,0 +1,12 @@
+toplevel "System";
+"System" or "T" "E2";
+"E2" or "E3" "K2";
+"E3" and "S" "E4";
+"E4" or "S1" "E5";
+"E5" or "K1" "R";
+"T" prob=1.0e-6 cost=10;
+"K2" prob=1.0e-5 cost=50;
+"S" prob=1.0e-4 cost=500;
+"S1" prob=1.0e-5 cost=350;
+"K1" prob=1.0e-6 cost=2500;
+"R" prob=1.0e-4 cost=0.5;
