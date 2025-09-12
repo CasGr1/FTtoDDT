@@ -1,4 +1,5 @@
 from FaultTree.FT import *
+from FaultTree.FTParser import *
 from DDT.DDT import *
 
 def BUDAcost(ft):
@@ -54,27 +55,28 @@ def expected_cost_subft(ordered_children, gate_type):
     expected = 0.0
     if gate_type == 'OR':
         prob_prefix = 1.0
-        for _, cost, prob in ordered_children:
+        for _, prob, cost in ordered_children:
             expected += prob_prefix * cost
             prob_prefix *= (1 - prob)
     elif gate_type == 'AND':
         prob_prefix = 1.0
-        for _, cost, prob in ordered_children:
+        for _, prob, cost in ordered_children:
             expected += prob_prefix * cost
             prob_prefix *= prob
     return expected
 
 
 if __name__ == "__main__":
-    be1 = FT("BE1", FtElementType.BE, prob=0.1, cost=10)
-    be2 = FT("BE2", FtElementType.BE, prob=0.3, cost=1)
-    be3 = FT("BE3", FtElementType.BE, prob=0.2, cost=1)
-    be4 = FT("BE4", FtElementType.BE, prob=0.15, cost=1)
-    be5 = FT("BE5", FtElementType.BE, prob=0.05, cost=1)
-    gate1 = FT("G1", FtElementType.AND, [be1, be2], cost=0)
-    gate3 = FT("G2", FtElementType.AND, [be4, be5], cost=0)
-    gate2 = FT("G3", FtElementType.OR, [be3, gate3], cost=0)
-    top = FT("TOP", FtElementType.OR, [gate1, gate2], cost=0)
+#     be1 = FT("BE1", FtElementType.BE, prob=0.1, cost=10)
+#     be2 = FT("BE2", FtElementType.BE, prob=0.3, cost=1)
+#     be3 = FT("BE3", FtElementType.BE, prob=0.2, cost=1)
+#     be4 = FT("BE4", FtElementType.BE, prob=0.15, cost=1)
+#     be5 = FT("BE5", FtElementType.BE, prob=0.05, cost=1)
+#     gate1 = FT("G1", FtElementType.AND, [be1, be2], cost=0)
+#     gate3 = FT("G2", FtElementType.AND, [be4, be5], cost=0)
+#     gate2 = FT("G3", FtElementType.OR, [be3, gate3], cost=0)
+#     top = FT("TOP", FtElementType.OR, [gate1, gate2], cost=0)
+    top = FTParse("FaultTree/FTexamples/Cost/test.dft")
     top.unreliability(add_unreliability=True)
     DDT = BUDAcost(top)
     convertedDDT = ddt_from_tuple(DDT[0], top.probabilities(), top.cost_dict())
