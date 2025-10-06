@@ -1,0 +1,6 @@
+toplevel "TOP";
+"TOP" or "A" "B" "C" "D";
+"A" prob=0.9 cost=100;
+"B" prob=0.8 cost=1;
+"C" prob=0.9 cost=100;
+"D" prob=0.8 cost=1;

@@ -1,4 +1,0 @@
-toplevel "T";
-"T" and "A" "B";
-"A" prob=0.1  cost=100;
-"B" prob=0.999999999 cost=10;
