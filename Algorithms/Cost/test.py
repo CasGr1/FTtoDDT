@@ -18,6 +18,23 @@ def CuDAtest(ft, cutsets):
         return var, CuDAtest(ft, remove_cs(cutsets, var)), CuDAtest(ft, remove_var(cutsets, var))
 
 
+# def CuDAsize(ft, cutsets):
+#     """
+#     This is an algorithm that transforms fault trees into diagnostic decision trees using cut sets
+#     :param ft: fault tree that will be converted
+#     :param cutsets: a set of all minimal cut sets
+#     :return: a diagnostic decision tree corresponding to ft
+#     """
+#     if not cutsets:
+#         return '0'
+#     if [] in cutsets:
+#         return '1'
+#     else:
+#         current_cs = sorted(cutsets, key=len)[0]
+#         var = find_min_var(ft, current_cs)
+#         return var, CuDAsize(ft, remove_cs(cutsets, var)), CuDAsize(ft, remove_var(cutsets, var))
+
+
 def remove_var(cutsets, remove):
     """
     This function removes all variables equal to remove argument in the set of all cut sets
@@ -54,8 +71,8 @@ def find_min_var(ft, current_cs):
     min_var = None
     for var in current_cs:
         current = ft.find_vertex_by_name(var)
-        if current.cost*current.prob < prob:
-            prob = current.cost*current.prob
+        if current.cost < prob:
+            prob = current.cost
             min_var = current.name
     return min_var
 
@@ -77,7 +94,7 @@ def find_likely_cut_set(ft, cutsets):
             current = ft.find_vertex_by_name(vertex)
             P *= current.prob
             C += current.cost
-        comp = C*P
+        comp = C
         if comp < max:
             max = comp
             cutset = cs

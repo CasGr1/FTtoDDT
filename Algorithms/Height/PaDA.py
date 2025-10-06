@@ -3,13 +3,7 @@ from Algorithms.Height.CuDA import remove_cs, remove_var
 
 def PaDAprob(ft, S):
     """
-    This is an algorithm that transforms fault trees into diagnostic decision trees using path sets
-    It picks the path sets based on probability
-    :param ft: fault tree that will be converted
-    :param S: a set of all minimal cut sets
-    :return: a diagnostic decision tree corresponding to ft
     """
-
     if not S:
         return '1'
     if [] in S:
@@ -20,23 +14,23 @@ def PaDAprob(ft, S):
         return var, PaDAprob(ft, remove_var(S, var)), PaDAprob(ft, remove_cs(S, var))
 
 
-def PaDAsize(ft, S):
-    """
-    This is an algorithm that transforms fault trees into diagnostic decision trees using path sets
-    It picks path sets based on size
-    :param ft: fault tree that will be converted
-    :param S: a set of all minimal cut sets
-    :return: a diagnostic decision tree corresponding to ft
-    """
-
-    if not S:
-        return '1'
-    if [] in S:
-        return '0'
-    else:
-        current_ps = sorted(S, key=len)[0]
-        var = find_max_var(ft, current_ps)
-        return var, PaDAprob(ft, remove_var(S, var)), PaDAprob(ft, remove_cs(S, var))
+# def PaDAsize(ft, S):
+    # """
+    # This is an algorithm that transforms fault trees into diagnostic decision trees using path sets
+    # It picks path sets based on size
+    # :param ft: fault tree that will be converted
+    # :param S: a set of all minimal cut sets
+    # :return: a diagnostic decision tree corresponding to ft
+    # """
+    #
+    # if not S:
+    #     return '1'
+    # if [] in S:
+    #     return '0'
+    # else:
+    #     current_ps = sorted(S, key=len)[0]
+    #     var = find_max_var(ft, current_ps)
+    #     return var, PaDAprob(ft, remove_var(S, var)), PaDAprob(ft, remove_cs(S, var))
 
 def find_max_var(ft, current_ps):
     """
