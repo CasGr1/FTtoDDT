@@ -25,7 +25,10 @@ def DIDACOST(ft, cutsets):
 def DIF(ft, var):
     subft = ft.find_vertex_by_name(var)
     prob = subft.prob
-    return prob + (prob*(1-prob)*MIF(ft, var))/(ft.unreliability())
+    dif = (prob + (prob*(1-prob)*MIF(ft, var))/(ft.unreliability()))
+    if dif == 1:
+        dif = 0.99999999
+    return dif
 
 
 def MIF(ft, var):

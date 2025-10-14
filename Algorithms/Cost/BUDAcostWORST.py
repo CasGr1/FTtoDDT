@@ -79,7 +79,7 @@ if __name__ == "__main__":
 #     gate3 = FT("G2", FtElementType.AND, [be4, be5], cost=0)
 #     gate2 = FT("G3", FtElementType.OR, [be3, gate3], cost=0)
 #     top = FT("TOP", FtElementType.OR, [gate1, gate2], cost=0)
-    top = FTParse("FaultTree/FTexamples/Cost/test.dft")
+    top = FTParse("FaultTree/FTexamples/FFORTcost/test.dft")
     top.unreliability(add_unreliability=True)
     DDT = BUDAcost(top)
     convertedDDT = ddt_from_tuple(DDT[0], top.probabilities(), top.cost_dict())

@@ -28,7 +28,7 @@ def add_cost_to_fault_tree(input_file: str, output_file: str = None, random_max:
                 prob = float(prob_str)
 
                 # Compute cost inversely proportional to probability + small random offset
-                base_cost = 1.0 / prob
+                base_cost = 0.0001 / prob
                 cost = base_cost + random.uniform(0, random_max)
                 cost_int = int(round(cost))
 
@@ -41,7 +41,7 @@ def add_cost_to_fault_tree(input_file: str, output_file: str = None, random_max:
     with open(output_file, "w") as f:
         f.write("\n".join(new_lines))
 
-    print(f"✅ Costs added: {output_file}")
+    print(f"Costs added: {output_file}")
 
 def make_binary_fault_tree_file(input_filename: str, output_filename: str):
     """
@@ -91,7 +91,7 @@ def make_binary_fault_tree_file(input_filename: str, output_filename: str):
     with open(output_filename, "w") as f:
         f.write("\n".join(new_lines))
 
-    print(f"✅ Binary fault tree written to: {output_filename}")
+    print(f"Binary fault tree written to: {output_filename}")
 
 
 def convert_all_fault_trees(input_folder: str, output_folder: str, file_extension: str = ".dft"):
@@ -108,7 +108,7 @@ def convert_all_fault_trees(input_folder: str, output_folder: str, file_extensio
             try:
                 make_binary_fault_tree_file(input_path, output_path)
             except Exception as e:
-                print(f"⚠️ Error processing {fname}: {e}")
+                print(f"️ Error {fname}: {e}")
 
 def add_cost_to_all_fault_trees(input_folder: str, output_folder: str, file_extension: str = ".dft"):
     """
@@ -124,11 +124,12 @@ def add_cost_to_all_fault_trees(input_folder: str, output_folder: str, file_exte
             try:
                 add_cost_to_fault_tree(input_path, output_path)
             except Exception as e:
-                print(f"⚠️ Error processing {fname}: {e}")
+                print(f"️ Error {fname}: {e}")
 
 
 if __name__ == "__main__":
-    input_folder = "FTexamples/FFORTbinary/"   # folder with original FTs
+    input_folder = "FTexamples/FFORTcost/"   # folder with original FTs
     output_folder = "FTexamples/FFORTbinarycost/"    # folder to save binary FTs
 
-    add_cost_to_all_fault_trees(input_folder, output_folder)
+    convert_all_fault_trees(input_folder, output_folder)
+    # add_cost_to_all_fault_trees(input_folder, output_folder)

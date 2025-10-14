@@ -49,7 +49,7 @@ def find_max_var(ft, current_ps):
     max_var = None
     for var in current_ps:
         current = ft.find_vertex_by_name(var)
-        if current.cost/current.prob < prob:
+        if current.cost/(1-current.prob) < prob:
             prob = current.prob
             max_var = current.name
     return max_var
@@ -71,7 +71,7 @@ def find_min_path_set(ft, S):
             current = ft.find_vertex_by_name(vertex)
             P *= (1-current.prob)
             C += current.cost
-        comp = C/(1-P)
+        comp = C/P
         if comp < maxP:
             maxP = P
             pathset = ps

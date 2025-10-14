@@ -19,7 +19,7 @@ def prep(filename):
 
 if __name__ == "__main__":
     # Get all needed from Fault Tree
-    FaultTree, B, P, S, Pathsets, cost = prep("../FaultTree/FTexamples/Cost/Aircraft(FT4)COST.dft")
+    FaultTree, B, P, S, Pathsets, cost = prep("../FaultTree/FTexamples/FFORTcost/Aircraft(FT4)COST.dft")
 
     Testname = "AircraftBUDAtest.txt"
     total_time = 0.0

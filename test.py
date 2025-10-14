@@ -9,7 +9,7 @@ from Algorithms.Cost.BUDAcostWORST import *
 
 
 if __name__ == "__main__":
-    FTfile = "FaultTree/FTexamples/Cost/csdcost.dft"
+    FTfile = "FaultTree/FTexamples/FFORTcost/csdcost.dft"
     FaultTree = FTParse(FTfile)
 
     FaultTree.unreliability(add_unreliability=True)
@@ -25,11 +25,11 @@ if __name__ == "__main__":
     # EDADDT, EDAcost = EDAcost(FaultTree, B, P, C)
     # print("EDA cost:", EDAcost)
     # BUDA
-    # BUDADDT, scrap, scrap2 = BUDAcost(FaultTree)
-    # BUDAfinalDDT = ddt_from_tuple(BUDADDT, P, C)
-    # # BUDAfinalDDT.print()
-    # print("BUDA Exp Height:", BUDAfinalDDT.expected_cost())
-    # print(compare_ft_to_ddt(BUDAfinalDDT, FaultTree))
+    BUDADDT, crap, scrap2 = BUDAcost(FaultTree)
+    BUDAfinalDDT = ddt_from_tuple(BUDADDT, P, C)
+    # BUDAfinalDDT.print()
+    print("BUDA Exp Height:", BUDAfinalDDT.expected_cost())
+    print(compare_ft_to_ddt(BUDAfinalDDT, FaultTree))
     #
     # # BUDA
     # BUDADDTp = BUDA(FaultTree)

@@ -19,6 +19,9 @@ if __name__ == "__main__":
 
             BUDAc = ddt_from_tuple(BUDAcost(FaultTree)[0], FaultTree.probabilities(), FaultTree.cost_dict()).expected_cost()
             BUDAp = ddt_from_tuple(BUDA(FaultTree), FaultTree.probabilities(), FaultTree.cost_dict()).expected_cost()
-            print(fname + " BUDAc: " + str(BUDAc) + " BUDAp: " + str(BUDAp) + "\n")
+            fBUDAc = ddt_from_tuple(BUDAcost(FaultTree)[0], FaultTree.probabilities(), FaultTree.cost_dict()).expected_cost_failure()
+            fBUDAp = ddt_from_tuple(BUDA(FaultTree), FaultTree.probabilities(), FaultTree.cost_dict()).expected_cost_failure()
+            print(fname + " BUDAc: " + str(BUDAc) + " BUDAp: " + str(BUDAp) + "")
+            print(fname + " BUDAc: " + str(fBUDAc) + " BUDAp: " + str(fBUDAp) + "\n")
             results[fname] = cost
     # print(results)

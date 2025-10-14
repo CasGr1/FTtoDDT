@@ -1,17 +1,16 @@
 from Algorithms.Cost.EDAcost import *
 from Algorithms.Cost.BUDAcost import *
 from Algorithms.Cost.CuDAcost import *
-from Algorithms.Cost.DIFcost import *
-from Algorithms.Cost.test import *
-from Algorithms.Height.BUDA import *
-from Algorithms.Cost.BUDAcostWORST import *
-from Algorithms.Cost.EDAworst import *
 from Algorithms.Cost.PaDAcost import *
+from Algorithms.Cost.DIFcost import *
+from Algorithms.Height.BUDA import *
 from Algorithms.Height.CuDA import *
+from Algorithms.Height.PaDA import *
 from FaultTree.FTParser import *
 from DDT.DDT import *
 import matplotlib.pyplot as plt
 import numpy as np
+import os
 
 
 def prep(filename):
@@ -59,69 +58,70 @@ def plot_exp_cost(data_dicts, title="Comparison of Methods"):
     plt.tight_layout()
     plt.show()
 
+def cost(ddt, failure):
+    if failure == False:
+        return ddt.expected_cost()
+    elif failure == True:
+        return ddt.expected_cost_failure()
 
 if __name__ == "__main__":
-    CUDA_exp_cost_dict = {}
-    CUDA_normal = {}
+    CUDA_cost = {}
+    CUDA_prob = {}
     PADA_cost = {}
-    BUDA_exp_cost_dict = {}
-    DIF_exp_cost_dict = {}
-    EDAdict = {}
-    worstdict = {}
-    BUDAworst = {}
-    BUDAp = {}
-    # Filenames = ["testBigDIFF.dft", "Aircraft(FT4)COST.dft", "mpsCOST.dft", "ptCOST.dft", "PCBAcost.dft", "csdcost.dft", "ATC(FT3)cost.dft"]
-    Filenames = ["HSC(FT14)worst.dft", "Aircraft(FT4)worst.dft", "ptCOST.dft", "csdworst.dft", "ATC(FT3).dft", "mps.dft", "PCBA.dft", "testAND.dft", "testOR.dft"]
-    # Filenames = ["testBigDIFF.dft"]
+    PADA_prob = {}
+    BUDA_cost = {}
+    BUDA_prob = {}
+    DIF_cost  = {}
+    EDA_cost  = {}
+    folder = "../FaultTree/FTexamples/FFORTcost"
+    fail = True
 
+    for fname in os.listdir(folder):
+        full_path = os.path.join(folder, fname)
+        if os.path.isfile(full_path) and fname.endswith(".dft"):
+            file = os.path.basename(full_path)
+            print(file)
+            ft, var, prob, cs, ps, cst = prep(full_path)
+            # if file == "ptCOST.dft" or file == "csdcost.dft" or file == "testBigDIFF.dft":
+            #     EDAddt, EDAexpcost = EDAcost(ft, var, prob, cst)
+            #     EDAdict[file] = EDAexpcost
+            #
+            #     # worst, worstexpcost = EDAworst(ft, var, prob, cst)
+            #     # worstdict[file] = worstexpcost
 
-    for file in Filenames:
-        ft, var, prob, cs, ps, cst = prep("../FaultTree/FTexamples/BUDAworstcase/" + file)
-        if file == "ptCOST.dft" or file == "csdcost.dft" or file == "testBigDIFF.dft":
-            EDAddt, EDAexpcost = EDAcost(ft, var, prob, cst)
-            EDAdict[file] = EDAexpcost
+            BUDApddt = BUDA(ft)
+            BUDApconvertedddt = ddt_from_tuple(BUDApddt, prob, cst)
+            BUDA_prob[file] = cost(BUDApconvertedddt, fail)
 
-            # worst, worstexpcost = EDAworst(ft, var, prob, cst)
-            # worstdict[file] = worstexpcost
+            BUDAddt, adf, sdf = BUDAcost(ft)
+            BUDAconvertedddt = ddt_from_tuple(BUDAddt, prob, cst)
+            BUDA_cost[file] = cost(BUDAconvertedddt, fail)
 
-        BUDAworstddt, adfs, asdf = BUDAcostworst(ft)
-        BUDAworstconvertedddt = ddt_from_tuple(BUDAworstddt, prob, cst)
-        BUDAworst[file] = BUDAworstconvertedddt.expected_cost()
+            PaDApddt = PaDAprob(ft, ps)
+            paDApconvertedddt = ddt_from_tuple(PaDApddt, prob, cst)
+            PADA_prob[file] = cost(paDApconvertedddt, fail)
 
-        BUDApddt = BUDA(ft)
-        BUDApconvertedddt = ddt_from_tuple(BUDApddt, prob, cst)
-        BUDAp[file] = BUDApconvertedddt.expected_cost()
+            PaDAddt = PaDAcost(ft, ps)
+            paDAconvertedddt = ddt_from_tuple(PaDAddt, prob, cst)
+            PADA_cost[file] = cost(paDAconvertedddt, fail)
 
-        BUDAddt, adf, sdf = BUDAcost(ft)
-        BUDAconvertedddt = ddt_from_tuple(BUDAddt, prob, cst)
-        BUDA_exp_cost_dict[file] = BUDAconvertedddt.expected_cost()
-        # if file == "testBigDIFF.dft":
-        #     BUDAconvertedddt.print()
-        # print(BUDA_exp_cost_dict[file])
+            CuDApddt = CuDAprob(ft, cs)
+            CuDApconvertedddt = ddt_from_tuple(CuDApddt, prob, cst)
+            CUDA_prob[file] = cost(CuDApconvertedddt, fail)
 
-        # Cnormal = CuDAprob(ft, cs)
-        # Cnormalconverted = ddt_from_tuple(Cnormal, prob, cst)
-        # CUDA_normal[file] = Cnormalconverted.expected_cost()
+            CuDAddt = CuDAcost(ft, cs)
+            CuDAconvertedddt = ddt_from_tuple(CuDAddt, prob, cst)
+            CUDA_cost[file] = cost(CuDAconvertedddt, fail)
 
-        # PaDAddt = PaDAcost(ft, ps)
-        # paDAconvertedddt = ddt_from_tuple(PaDAddt, prob, cst)
-        # PADA_cost[file] = paDAconvertedddt.expected_cost()
+            DIFddt = DIDACOST(ft, cs)
+            DIFconvertedddt = ddt_from_tuple(DIFddt, prob, cst)
+            DIF_cost[file] = cost(DIFconvertedddt, fail)
 
-        # CuDAddt = CuDAcost(ft, cs)
-        # CuDAconvertedddt = ddt_from_tuple(CuDAddt, prob, cst)
-        # CUDA_exp_cost_dict[file] = CuDAconvertedddt.expected_cost()
-        # print(CUDA_exp_cost_dict[file])
-
-        # DIFddt = DIDACOST(ft, cs)
-        # DIFconvertedddt = ddt_from_tuple(DIFddt, prob, cst)
-        # DIF_exp_cost_dict[file] = DIFconvertedddt.expected_cost()
-    plot_exp_cost({"BUDAcost": BUDA_exp_cost_dict,
-                   "BUDAprob": BUDAp})
-    # plot_exp_cost({"CUDAcost": CUDA_exp_cost_dict,
-    #                "CUDAtest": CUDA_normal,
-    #                "PADAcost": PADA_cost,
-    #                "BUDA": BUDA_exp_cost_dict,
-    #                "DIF": DIF_exp_cost_dict,
-    #                "EDA": EDAdict,
-    #                "BUDAworst": BUDAworst,
-    #                "worst": worstdict})
+    plot_exp_cost({"CUDAcost": CUDA_cost,
+                   "CUDAprob": CUDA_prob,
+                   "PADAcost": PADA_cost,
+                   "PADAprob": PADA_prob,
+                   "BUDAcost": BUDA_cost,
+                   "BUDAprob": BUDA_prob,
+                   "DIF":      DIF_cost
+                   })

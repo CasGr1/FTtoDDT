@@ -1,6 +1,6 @@
 from FaultTree.FT import *
 from FaultTree.FTParser import *
-from DDT.DDT import *
+# from DDT.DDT import *
 
 def BUDAcost(ft):
     """
@@ -72,9 +72,9 @@ if __name__ == "__main__":
     # be3 = FT("BE3", FtElementType.BE, prob=0.3, cost=1)
     # subtree = FT("sub", FtElementType.AND, [be2, be3])
     top = FT("TOP", FtElementType.AND, [be1, be2])
-    # top = FTParse("FaultTree/FTexamples/Cost/test.dft")
+    # top = FTParse("FaultTree/FTexamples/FFORTcost/test.dft")
     top.unreliability(add_unreliability=True)
     DDT = BUDAcost(top)
-    convertedDDT = ddt_from_tuple(DDT[0], top.probabilities(), top.cost_dict())
-    convertedDDT.print()
-    print(convertedDDT.expected_cost())
+    # convertedDDT = ddt_from_tuple(DDT[0], top.probabilities(), top.cost_dict())
+    # convertedDDT.print()
+    # print(convertedDDT.expected_cost())

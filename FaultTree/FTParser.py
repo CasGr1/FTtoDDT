@@ -37,7 +37,7 @@ def FTParse(filename):
 
 if __name__ == "__main__":
     # FTfile = "FTexamples/loss_container_port(FT9).dft"
-    FTfile = "FTexamples/Cost/ptCOST.dft"
+    FTfile = "FTexamples/FFORTcost/ptCOST.dft"
     FaultTree = FTParse(FTfile)
     FaultTree.print()
 
